@@ -1,4 +1,5 @@
---Q2 Part 1
+--Q2 Part 1 
+/*
 with vandyplay AS (SELECT distinct (playerid)
 				FROM collegeplaying
                 WHERE schoolid = 'vandy')
@@ -13,8 +14,8 @@ with vandyplay AS (SELECT distinct (playerid)
 SELECT salary, vandyplay.playerid
 FROM vandyplay INNER JOIN salaries on vandyplay.playerid = salaries.playerid
 WHERE SELECT DISTINCT playerid
----?
-
+---? Can you continue down this path
+*/
 select concat(namefirst,' ', namelast) as fullname, sum(salary) as total_salary
 from salaries
 	inner join collegeplaying

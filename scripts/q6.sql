@@ -1,3 +1,4 @@
+/*
 SELECT total.playerid, sb/total
 FROM(SELECT playerid, sb, cs, SUM (sb+cs) as total
 	FROM fielding
@@ -11,8 +12,9 @@ FROM (SELECT playerid, sb, cs, SUM (sb+cs)
 	              GROUP BY playerid, sb, cs) AS simple
 WHERE sum > 20 
 ORDER BY success DESC
+*/
 
-SELECT playerid, yearid, ((sb::numeric/sum)*100) as success
+SELECT playerid, yearid, (ROUND((sb::numeric/sum)*100)) as success
 FROM (SELECT playerid, sb, cs, SUM (sb+cs), yearid
 			      FROM fielding
 	              GROUP BY playerid, sb, cs, yearid) AS simple
