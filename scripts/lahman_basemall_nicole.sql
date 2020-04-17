@@ -47,14 +47,55 @@ select pos from fielding where yearid = 2016 --1953 rows
 --Q5. Find the average number of strikeouts per game by decade since 1920. Round the numbers you report to 2 decimal places. 
 --Do the same for home runs per game. Do you see any trends?
 --do i need to include battingpost (SO)and pitchingpost(SO) tables?
+--do we need so(so by pitchers)and soa(so by batters)?
 --batting (SO), pitching(SO), teams (SO-2132, SOA-2132); teams(HR) for homeruns table per games(G) per yearid.
-SELECT yearid, 
-	ROUND((AVG(SO/G) OVER(PARTITION BY yearid ORDER BY yearid, yearid ROWS BETWEEN 10 PRECEDING AND CURRENT ROW),2)
-	--AVG(soa/G) AS avg_soa
+
+select yearid, sum(hr) as total_hr, sum(g) as total_g 
+from teams 
+group by yearid,hr,g 
+order by yearid
+
+WITH strikeouts_decade AS
+		(SELECT SUM(so) AS total_so,
+			CASE WHEN yearid >= 1920
+		 		ELSE yearid + 10 
+				END AS decade
+				FROM teams
+	 GROUP BY decade),
+select decade from strikeouts_decade order by decade desc;
+	 
+SELECT yearid, round(AVG((so)/g),2) as avg_so_per_game,  --round(avg(so) OVER(PARTITION BY yearid ORDER BY yearid, yearid ROWS BETWEEN 10 PRECEDING AND CURRENT ROW),2)AS avg_so_per_game
+			round(AVG((hr)/g),2) as avg_hr_per_game
 FROM teams
 WHERE yearid >= 1920
 GROUP BY yearid, so
-               ***GROUP BY ineterval 10 years from 1920 to 2016 by 10 years
+ORDER BY yearid;
+
+select avg(so/g) from teams  --4.318
+select avg(so), avg(g) from teams --when you divide avg(so)/avg(g) = 4.945
+ 
+select * from teams
+select sum(g) from teams  --batting g sum: 5278927, teams g sum: 426582
+
+WITH strikeouts_per_decade AS
+		(SELECT SUM(so) AS total_strikeouts,	
+	 	concat(yearid::numeric, '-', yearid::numeric + 9) as decade_group
+		from teams --should this be from batting????
+		where yearid BETWEEN 1920 AND 2019 --AND yearid = 1930 --AND yearid = 1940
+		group by decade_group),
+games_per_decade AS
+		(SELECT(SUM(g)/2) AS total_games, 
+		   	concat(yearid::numeric, '-', yearid::numeric + 9) as decade_group
+		FROM teams	  
+	 	WHERE yearid BETWEEN 1920 AND 2019 --need this to be by 9 year intervals!!!
+		GROUP BY decade_group
+		ORDER BY decade_group DESC)
+SELECT total_strikeouts, total_games, ROUND((total_strikeouts / total_games),2) AS avg_so_per_game, decade_group
+FROM strikeouts_per_decade
+INNER JOIN games_per_decade
+USING (decade_group)
+GROUP BY decade_group, total_strikeouts, total_games
+
 
 
 --Q6. Find the player who had the most success stealing bases in 2016, where success is measured as the percentage of stolen base attempts which are successful. (A stolen base attempt results either in a stolen base or being caught stealing.) Consider only players who attempted at least 20 stolen bases.
