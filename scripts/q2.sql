@@ -4,6 +4,7 @@ with vandyplay AS (SELECT distinct (playerid)
                 WHERE schoolid = 'vandy')
 SELECT CONCAT(namefirst,' ',namelast)AS FullName
 FROM vandyplay INNER JOIN people on vandyplay.playerid = people.playerid
+order by FullName
 
 --Part2
 with vandyplay AS (SELECT distinct (playerid)
@@ -24,7 +25,7 @@ where schoolid ilike 'vand%'
 group by fullname
 order by total_salary desc
 
-with average as(SELECT SUM AS ATTEMPT
-				FROM batting
-				 
-SELECT
+
+
+
+
