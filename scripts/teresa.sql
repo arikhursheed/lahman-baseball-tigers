@@ -127,8 +127,30 @@ order by total_salary desc
 Give their full name and the teams that they were managing when they won the award.
 */
 
---list of managers and year they won specified award, still working on structuring the join to managers and people tables to get full name and team
-select playerid, yearid
-from awardsmanagers
-where awardid like 'TSN%'
-and (lgid like 'NL' or lgid like 'AL');
+with tsn_award as (select playerid, yearid as award_year
+				   from awardsmanagers
+				   where awardid like 'TSN%'
+				   and (lgid like 'NL' or lgid like 'AL'))
+select concat(namefirst,' ',namelast) as full_name, teamid, award_year
+from people
+	join managers
+	using (playerid)
+	join tsn_award
+	using (playerid)
+where managers.yearid = award_year;
+
+
+
+--2. Find the name and height of the shortest player in the database. How many games did he play in? 
+--What is the name of the team for which he played?
+with shortest_player as (SELECT namefirst, playerid, height as shortest_player
+                          from people
+                          where height= (SELECT min(height) from people))
+
+SELECT namefirst, g_all, teamid
+from appearances inner join shortest_player
+using (playerid) 
+
+select namefirst, namelast, height
+from people
+where namefirst like 'Eddie'
